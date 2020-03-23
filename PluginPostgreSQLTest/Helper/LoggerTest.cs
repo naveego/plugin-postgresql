@@ -6,7 +6,7 @@ namespace PluginPostgreSQLTest.Helper
 {
     public class LoggerTest
     {
-        private static string _path = @"logs/plugin-mysql-log.txt";
+        private static string _path = @"logs/plugin-postgressql-log.txt";
         
         [Fact]
         public void VerboseTest()

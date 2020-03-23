@@ -52,7 +52,7 @@ namespace PluginPostgreSQL.Helper
         /// <returns></returns>
         public string GetConnectionString(string database)
         {
-            return $"Server={Hostname}; Port={Port}; Database={database}; User={Username}; Password={Password};";
+            return $"Host={Hostname}; Port={Port}; Database={database}; Username={Username}; Password={Password};";
         }
     }
 }

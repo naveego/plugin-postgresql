@@ -278,8 +278,6 @@ namespace PluginPostgreSQL.Plugin
                     }
                 });
             }
-            
-            return Task.FromResult(new ConfigureReplicationResponse());
         }
 
         /// <summary>

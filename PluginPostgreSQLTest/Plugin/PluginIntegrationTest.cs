@@ -19,9 +19,10 @@ namespace PluginPostgreSQLTest.Plugin
             return new Settings
             {
                 Hostname = "150.136.152.223",
-                Database = "classicmodels",
-                Username = "root",
-                Password = "dtC5&CFiQ$9j"
+                Port = "5432",
+                Database = "postgres",
+                Username = "postgres",
+                Password = "oSk1l#AMOuei"
             };
         }
 
@@ -163,18 +164,18 @@ namespace PluginPostgreSQLTest.Plugin
 
             // assert
             Assert.IsType<DiscoverSchemasResponse>(response);
-            Assert.Equal(8, response.Schemas.Count);
+            Assert.Equal(28, response.Schemas.Count);
 
             var schema = response.Schemas[0];
-            Assert.Equal($"`classicmodels`.`customers`", schema.Id);
-            Assert.Equal("classicmodels.customers", schema.Name);
+            Assert.Equal($"\"public\".\"actor\"", schema.Id);
+            Assert.Equal("public.actor", schema.Name);
             Assert.Equal($"", schema.Query);
             Assert.Equal(10, schema.Sample.Count);
-            Assert.Equal(13, schema.Properties.Count);
+            Assert.Equal(4, schema.Properties.Count);
 
-            var property = schema.Properties[7];
-            Assert.Equal("`customerNumber`", property.Id);
-            Assert.Equal("customerNumber", property.Name);
+            var property = schema.Properties[3];
+            Assert.Equal("\"actor_id\"", property.Id);
+            Assert.Equal("actor_id", property.Name);
             Assert.Equal("", property.Description);
             Assert.Equal(PropertyType.Integer, property.Type);
             Assert.True(property.IsKey);
@@ -207,7 +208,7 @@ namespace PluginPostgreSQLTest.Plugin
             {
                 Mode = DiscoverSchemasRequest.Types.Mode.Refresh,
                 SampleSize = 10,
-                ToRefresh = {GetTestSchema("`classicmodels`.`customers`", "classicmodels.customers")}
+                ToRefresh = {GetTestSchema("\"public\".\"actor\"", "public.actor")}
             };
 
             // act
@@ -219,15 +220,15 @@ namespace PluginPostgreSQLTest.Plugin
             Assert.Single(response.Schemas);
 
             var schema = response.Schemas[0];
-            Assert.Equal($"`classicmodels`.`customers`", schema.Id);
-            Assert.Equal("classicmodels.customers", schema.Name);
+            Assert.Equal($"\"public\".\"actor\"", schema.Id);
+            Assert.Equal("public.actor", schema.Name);
             Assert.Equal($"", schema.Query);
             Assert.Equal(10, schema.Sample.Count);
-            Assert.Equal(13, schema.Properties.Count);
+            Assert.Equal(4, schema.Properties.Count);
 
             var property = schema.Properties[0];
-            Assert.Equal("`customerNumber`", property.Id);
-            Assert.Equal("customerNumber", property.Name);
+            Assert.Equal("\"actor_id\"", property.Id);
+            Assert.Equal("actor_id", property.Name);
             Assert.Equal("", property.Description);
             Assert.Equal(PropertyType.Integer, property.Type);
             Assert.True(property.IsKey);
@@ -260,7 +261,7 @@ namespace PluginPostgreSQLTest.Plugin
             {
                 Mode = DiscoverSchemasRequest.Types.Mode.Refresh,
                 SampleSize = 10,
-                ToRefresh = {GetTestSchema("test", "test", $"SELECT * FROM `classicmodels`.`customers`")}
+                ToRefresh = {GetTestSchema("test", "test", $"SELECT * FROM \"public\".\"actor\"")}
             };
 
             // act
@@ -274,17 +275,17 @@ namespace PluginPostgreSQLTest.Plugin
             var schema = response.Schemas[0];
             Assert.Equal($"test", schema.Id);
             Assert.Equal("test", schema.Name);
-            Assert.Equal($"SELECT * FROM `classicmodels`.`customers`", schema.Query);
+            Assert.Equal($"SELECT * FROM \"public\".\"actor\"", schema.Query);
             Assert.Equal(10, schema.Sample.Count);
-            Assert.Equal(13, schema.Properties.Count);
+            Assert.Equal(4, schema.Properties.Count);
 
             var property = schema.Properties[0];
-            Assert.Equal("`customerNumber`", property.Id);
-            Assert.Equal("customerNumber", property.Name);
+            Assert.Equal("\"actor_id\"", property.Id);
+            Assert.Equal("actor_id", property.Name);
             Assert.Equal("", property.Description);
             Assert.Equal(PropertyType.Integer, property.Type);
-            Assert.True(property.IsKey);
-            Assert.False(property.IsNullable);
+            Assert.False(property.IsKey);
+            Assert.True(property.IsNullable);
 
             // cleanup
             await channel.ShutdownAsync();
@@ -307,7 +308,7 @@ namespace PluginPostgreSQLTest.Plugin
             var channel = new Channel($"localhost:{port}", ChannelCredentials.Insecure);
             var client = new Publisher.PublisherClient(channel);
 
-            var schema = GetTestSchema("`classicmodels`.`customers`", "classicmodels.customers");
+            var schema = GetTestSchema("\"public\".\"actor\"", "public.actor");
             
             var connectRequest = GetConnectSettings();
 
@@ -341,23 +342,14 @@ namespace PluginPostgreSQLTest.Plugin
             }
 
             // assert
-            Assert.Equal(122, records.Count);
+            Assert.Equal(200, records.Count);
 
             var record = JsonConvert.DeserializeObject<Dictionary<string, object>>(records[0].DataJson);
-            Assert.Equal((long)103, record["`customerNumber`"]);
-            Assert.Equal("Atelier graphique", record["`customerName`"]);
-            Assert.Equal("Schmitt", record["`contactLastName`"]);
-            Assert.Equal("Carine", record["`contactFirstName`"]);
-            Assert.Equal("40.32.2555", record["`phone`"]);
-            Assert.Equal("54, rue Royale", record["`addressLine1`"]);
-            Assert.Equal("", record["`addressLine2`"]);
-            Assert.Equal("Nantes", record["`city`"]);
-            Assert.Equal("", record["`state`"]);
-            Assert.Equal("44000", record["`postalCode`"]);
-            Assert.Equal("France", record["`country`"]);
-            Assert.Equal((long)1370, record["`salesRepEmployeeNumber`"]);
-            Assert.Equal("21000.00", record["`creditLimit`"]);
-            
+            Assert.Equal((long)1, record["\"actor_id\""]);
+            Assert.Equal("PENELOPE", record["\"first_name\""]);
+            Assert.Equal("GUINESS", record["\"last_name\""]);
+            Assert.Equal(DateTime.Parse("2/15/2017 4:34:33 AM"), record["\"last_update\""]);
+
             // cleanup
             await channel.ShutdownAsync();
             await server.ShutdownAsync();
@@ -379,7 +371,7 @@ namespace PluginPostgreSQLTest.Plugin
             var channel = new Channel($"localhost:{port}", ChannelCredentials.Insecure);
             var client = new Publisher.PublisherClient(channel);
 
-            var schema = GetTestSchema("test", "test", $"SELECT * FROM `classicmodels`.`orders`");
+            var schema = GetTestSchema("test", "test", $"SELECT * FROM \"public\".\"actor\"");
             
             var connectRequest = GetConnectSettings();
 
@@ -413,16 +405,13 @@ namespace PluginPostgreSQLTest.Plugin
             }
 
             // assert
-            Assert.Equal(326, records.Count);
+            Assert.Equal(200, records.Count);
 
             var record = JsonConvert.DeserializeObject<Dictionary<string, object>>(records[0].DataJson);
-            Assert.Equal((long)10100, record["`orderNumber`"]);
-            Assert.Equal(DateTime.Parse("2003-01-06"), record["`orderDate`"]);
-            Assert.Equal(DateTime.Parse("2003-01-13"), record["`requiredDate`"]);
-            Assert.Equal(DateTime.Parse("2003-01-10"), record["`shippedDate`"]);
-            Assert.Equal("Shipped", record["`status`"]);
-            Assert.Equal("", record["`comments`"]);
-            Assert.Equal((long)363, record["`customerNumber`"]);
+            Assert.Equal((long)1, record["\"actor_id\""]);
+            Assert.Equal("PENELOPE", record["\"first_name\""]);
+            Assert.Equal("GUINESS", record["\"last_name\""]);
+            Assert.Equal(DateTime.Parse("2/15/2017 4:34:33 AM"), record["\"last_update\""]);
 
             // cleanup
             await channel.ShutdownAsync();
@@ -445,7 +434,7 @@ namespace PluginPostgreSQLTest.Plugin
             var channel = new Channel($"localhost:{port}", ChannelCredentials.Insecure);
             var client = new Publisher.PublisherClient(channel);
 
-            var schema = GetTestSchema("`classicmodels`.`customers`", "classicmodels.customers");
+            var schema = GetTestSchema("\"public\".\"actor\"", "public.actor");
             
             var connectRequest = GetConnectSettings();
 

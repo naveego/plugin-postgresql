@@ -37,7 +37,6 @@
           </e>
           <e p="Replication" t="Include">
             <e p="ConvertSchemaToReplicationTable.cs" t="Include" />
-            <e p="CreateTableAsync.cs" t="Include" />
             <e p="DeleteRecordAsync.cs" t="Include" />
             <e p="DropTableAsync.cs" t="Include" />
             <e p="EnsureTableAsync.cs" t="Include" />

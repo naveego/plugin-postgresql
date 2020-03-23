@@ -34,6 +34,7 @@ FROM INFORMATION_SCHEMA.TABLES AS t
       LEFT OUTER JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS tc
                       ON tc.CONSTRAINT_NAME = ccu.CONSTRAINT_NAME AND tc.CONSTRAINT_SCHEMA = ccu.CONSTRAINT_SCHEMA
 WHERE t.TABLE_SCHEMA NOT IN ('information_schema', 'pg_catalog')
+AND (tc.CONSTRAINT_TYPE IS NULL OR tc.CONSTRAINT_TYPE = 'PRIMARY KEY')
 ORDER BY TABLE_NAME";
 
         public static async IAsyncEnumerable<Schema> GetAllSchemas(IConnectionFactory connFactory, int sampleSize = 5)
@@ -74,7 +75,7 @@ ORDER BY TABLE_NAME";
                 // add column to schema
                 var property = new Property
                 {
-                    Id = $"`{reader.GetValueById(ColumnName)}`",
+                    Id = Utility.Utility.GetSafeName(reader.GetValueById(ColumnName).ToString()),
                     Name = reader.GetValueById(ColumnName).ToString(),
                     IsKey = reader.GetValueById(ConstraintType).ToString() == "PRIMARY KEY",
                     IsNullable = reader.GetValueById(IsNullable).ToString() == "YES",

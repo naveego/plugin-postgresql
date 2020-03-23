@@ -8,7 +8,7 @@ namespace PluginPostgreSQL.API.Factory
         Task<bool> ReadAsync();
         Task CloseAsync();
         DataTable GetSchemaTable();
-        object GetValueById(string id, char trimChar = '`');
+        object GetValueById(string id, char trimChar = '"');
         bool HasRows();
     }
 }

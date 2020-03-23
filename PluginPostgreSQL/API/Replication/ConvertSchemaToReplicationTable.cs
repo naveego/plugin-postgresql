@@ -54,9 +54,9 @@ namespace PluginPostgreSQL.API.Replication
                 case PropertyType.String:
                     return "varchar(255)";
                 case PropertyType.Text:
-                    return "longtext";
+                    return "text";
                 default:
-                    return "longtext";
+                    return "text";
             }
         }
     }

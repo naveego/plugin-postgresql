@@ -28,7 +28,7 @@ namespace PluginPostgreSQL.API.Utility
             {
                 ColumnName = ReplicationMetaDataRequest,
                 PrimaryKey = false,
-                DataType = "longtext"
+                DataType = "text"
             },
             new ReplicationColumn
             {
@@ -39,7 +39,7 @@ namespace PluginPostgreSQL.API.Utility
             new ReplicationColumn
             {
                 ColumnName = ReplicationMetaDataReplicatedShapeName,
-                DataType = "longtext",
+                DataType = "text",
                 PrimaryKey = false
             },
             new ReplicationColumn

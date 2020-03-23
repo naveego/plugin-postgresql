@@ -16,19 +16,19 @@ namespace PluginPostgreSQL.API.Replication
                     {
                         {"type", "string"},
                         {"title", "Schema Name"},
-                        {"description", "Name of schema to put golden and version tables into in MySQL"},
+                        {"description", "Name of schema to put golden and version tables into in PostgreSQL"},
                     }},
                     {"GoldenTableName", new Dictionary<string, string>
                     {
                         {"type", "string"},
                         {"title", "Golden Record Table Name"},
-                        {"description", "Name for your golden record table in MySQL"},
+                        {"description", "Name for your golden record table in PostgreSQL"},
                     }},
                     {"VersionTableName", new Dictionary<string, string>
                     {
                         {"type", "string"},
                         {"title", "Version Record Bucket Name"},
-                        {"description", "Name for your version record table in MySQL"},
+                        {"description", "Name for your version record table in PostgreSQL"},
                     }},
                 }},
                 {"required", new []

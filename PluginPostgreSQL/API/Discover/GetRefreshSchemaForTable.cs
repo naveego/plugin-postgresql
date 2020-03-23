@@ -24,6 +24,7 @@ FROM INFORMATION_SCHEMA.TABLES AS t
       LEFT OUTER JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS tc
                       ON tc.CONSTRAINT_NAME = ccu.CONSTRAINT_NAME AND tc.CONSTRAINT_SCHEMA = ccu.CONSTRAINT_SCHEMA
 WHERE t.TABLE_SCHEMA NOT IN ('information_schema', 'pg_catalog')
+AND (tc.CONSTRAINT_TYPE IS NULL OR tc.CONSTRAINT_TYPE = 'PRIMARY KEY')
 AND t.TABLE_SCHEMA = '{0}'
 AND t.TABLE_NAME = '{1}' 
 
@@ -101,7 +102,7 @@ ORDER BY t.TABLE_NAME";
             }
         }
 
-        private static DecomposeResponse TrimEscape(this DecomposeResponse response, char escape = '`')
+        private static DecomposeResponse TrimEscape(this DecomposeResponse response, char escape = '"')
         {
             response.Database = response.Database.Trim(escape);
             response.Schema = response.Schema.Trim(escape);
