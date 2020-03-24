@@ -9,6 +9,7 @@ using PluginPostgreSQL.API.Discover;
 using PluginPostgreSQL.API.Factory;
 using PluginPostgreSQL.API.Read;
 using PluginPostgreSQL.API.Replication;
+using PluginPostgreSQL.API.Write;
 using PluginPostgreSQL.DataContracts;
 using PluginPostgreSQL.Helper;
 
@@ -224,6 +225,79 @@ namespace PluginPostgreSQL.Plugin
             
             Logger.Info($"Published {recordsCount} records");
         }
+        
+        /// <summary>
+        /// Creates a form and handles form updates for write backs
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public override async Task<ConfigureWriteResponse> ConfigureWrite(ConfigureWriteRequest request, ServerCallContext context)
+        {
+            Logger.Info("Configuring write...");
+
+            var storedProcedures = await Write.GetAllStoredProceduresAsync(_connectionFactory);
+
+            var schemaJson = Write.GetSchemaJson(storedProcedures);
+            var uiJson = Write.GetUIJson();
+            
+            // if first call 
+            if (request.Form == null || request.Form.DataJson == "")
+            {
+                return new ConfigureWriteResponse
+                {
+                    Form = new ConfigurationFormResponse
+                    {
+                        DataJson = "",
+                        DataErrorsJson = "",
+                        Errors = { },
+                        SchemaJson = schemaJson,
+                        UiJson = uiJson,
+                        StateJson = ""
+                    },
+                    Schema = null
+                };
+            }
+
+            try
+            {
+                // get form data
+                var formData = JsonConvert.DeserializeObject<ConfigureWriteFormData>(request.Form.DataJson);
+                var storedProcedure = storedProcedures.Find(s => s.GetId() == formData.StoredProcedure);
+            
+                // base schema to return
+                var schema = await Write.GetSchemaForStoredProcedureAsync(_connectionFactory, storedProcedure);
+
+                return new ConfigureWriteResponse
+                {
+                    Form = new ConfigurationFormResponse
+                    {
+                        DataJson = request.Form.DataJson,
+                        Errors = { },
+                        SchemaJson = schemaJson,
+                        UiJson = uiJson,
+                        StateJson = request.Form.StateJson
+                    },
+                    Schema = schema
+                };
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e.Message);
+                return new ConfigureWriteResponse
+                {
+                    Form = new ConfigurationFormResponse
+                    {
+                        DataJson = request.Form.DataJson,
+                        Errors = {e.Message},
+                        SchemaJson = schemaJson,
+                        UiJson = uiJson,
+                        StateJson = request.Form.StateJson
+                    },
+                    Schema = null
+                };
+            }
+        }
 
         /// <summary>
         /// Configures replication writebacks to MySQL
@@ -360,11 +434,15 @@ namespace PluginPostgreSQL.Plugin
                         // send record to source system
                         // add await for unit testing 
                         // removed to allow multiple to run at the same time
-                        Task.Run(async () => await Replication.WriteRecord(_connectionFactory, schema, record, config, responseStream), context.CancellationToken);
+                        Task.Run(async () => await Replication.WriteRecordAsync(_connectionFactory, schema, record, config, responseStream), context.CancellationToken);
                     }
                     else
                     {
-                        throw new Exception("Only replication writebacks are supported");
+                        // send record to source system
+                        // add await for unit testing 
+                        // removed to allow multiple to run at the same time
+                        Task.Run(async () =>
+                            await Write.WriteRecordAsync(_connectionFactory, schema, record, , responseStream), context.CancellationToken);
                     }
                 }
             

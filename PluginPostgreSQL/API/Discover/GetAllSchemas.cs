@@ -106,7 +106,7 @@ ORDER BY TABLE_NAME";
             return schema;
         }
 
-        private static PropertyType GetType(string dataType)
+        public static PropertyType GetType(string dataType)
         {
             switch (dataType)
             {

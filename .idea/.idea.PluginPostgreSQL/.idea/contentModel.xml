@@ -51,20 +51,28 @@
             <e p="UpsertRecordAsync.cs" t="Include" />
             <e p="UpsertReplicationMetaDataAsync.cs" t="Include" />
             <e p="ValidateReplicationFormData.cs" t="Include" />
-            <e p="WriteRecord.cs" t="Include" />
+            <e p="WriteRecordAsync.cs" t="Include" />
           </e>
           <e p="Utility" t="Include">
             <e p="Constants.cs" t="Include" />
             <e p="GetSafeName.cs" t="Include" />
             <e p="GetSafeString.cs" t="Include" />
           </e>
-          <e p="Write" t="Include" />
+          <e p="Write" t="Include">
+            <e p="GetAllStoredProceduresAsync.cs" t="Include" />
+            <e p="GetSchemaForStoredProcedureAsync.cs" t="Include" />
+            <e p="GetSchemaJson.cs" t="Include" />
+            <e p="GetUIJson.cs" t="Include" />
+            <e p="WriteRecordAsync.cs" t="Include" />
+          </e>
         </e>
         <e p="DataContracts" t="Include">
           <e p="ConfigureReplicationFormData.cs" t="Include" />
+          <e p="ConfigureWriteFormData.cs" t="Include" />
           <e p="ReplicationColumn.cs" t="Include" />
           <e p="ReplicationMetaData.cs" t="Include" />
           <e p="ReplicationTable.cs" t="Include" />
+          <e p="WriteStoredProcedure.cs" t="Include" />
         </e>
         <e p="Helper" t="Include">
           <e p="Logger.cs" t="Include" />

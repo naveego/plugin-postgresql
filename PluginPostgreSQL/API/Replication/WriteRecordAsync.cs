@@ -28,7 +28,7 @@ namespace PluginPostgreSQL.API.Replication
         /// <param name="config"></param>
         /// <param name="responseStream"></param>
         /// <returns>Error message string</returns>
-        public static async Task<string> WriteRecord(IConnectionFactory connFactory, Schema schema, Record record,
+        public static async Task<string> WriteRecordAsync(IConnectionFactory connFactory, Schema schema, Record record,
             ConfigureReplicationFormData config, IServerStreamWriter<RecordAck> responseStream)
         {
             // debug
