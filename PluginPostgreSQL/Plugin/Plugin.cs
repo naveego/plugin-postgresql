@@ -72,7 +72,7 @@ namespace PluginPostgreSQL.Plugin
             // test cluster factory
             try
             {
-                var conn =  _connectionFactory.GetConnection();
+                var conn = _connectionFactory.GetConnection();
                 await conn.OpenAsync();
 
                 if (!await conn.PingAsync())
@@ -100,7 +100,7 @@ namespace PluginPostgreSQL.Plugin
             }
 
             _server.Connected = true;
-            
+
             return new ConnectResponse
             {
                 OauthStateJson = request.OauthStateJson,
@@ -205,9 +205,9 @@ namespace PluginPostgreSQL.Plugin
             var limitFlag = request.Limit != 0;
             var jobId = request.JobId;
             var recordsCount = 0;
-            
+
             Logger.SetLogPrefix(jobId);
-            
+
             var records = Read.ReadRecords(_connectionFactory, schema);
 
             await foreach (var record in records)
@@ -217,22 +217,23 @@ namespace PluginPostgreSQL.Plugin
                 {
                     break;
                 }
-                
+
                 // publish record
                 await responseStream.WriteAsync(record);
                 recordsCount++;
             }
-            
+
             Logger.Info($"Published {recordsCount} records");
         }
-        
+
         /// <summary>
         /// Creates a form and handles form updates for write backs
         /// </summary>
         /// <param name="request"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        public override async Task<ConfigureWriteResponse> ConfigureWrite(ConfigureWriteRequest request, ServerCallContext context)
+        public override async Task<ConfigureWriteResponse> ConfigureWrite(ConfigureWriteRequest request,
+            ServerCallContext context)
         {
             Logger.Info("Configuring write...");
 
@@ -240,7 +241,7 @@ namespace PluginPostgreSQL.Plugin
 
             var schemaJson = Write.GetSchemaJson(storedProcedures);
             var uiJson = Write.GetUIJson();
-            
+
             // if first call 
             if (request.Form == null || request.Form.DataJson == "")
             {
@@ -264,7 +265,7 @@ namespace PluginPostgreSQL.Plugin
                 // get form data
                 var formData = JsonConvert.DeserializeObject<ConfigureWriteFormData>(request.Form.DataJson);
                 var storedProcedure = storedProcedures.Find(s => s.GetId() == formData.StoredProcedure);
-            
+
                 // base schema to return
                 var schema = await Write.GetSchemaForStoredProcedureAsync(_connectionFactory, storedProcedure);
 
@@ -310,21 +311,22 @@ namespace PluginPostgreSQL.Plugin
         {
             Logger.SetLogPrefix("configure_replication");
             Logger.Info($"Configuring write for schema name {request.Schema.Name}...");
-            
+
             var schemaJson = Replication.GetSchemaJson();
             var uiJson = Replication.GetUIJson();
-            
+
             try
             {
                 var errors = new List<string>();
-                if (! string.IsNullOrWhiteSpace(request.Form.DataJson))
+                if (!string.IsNullOrWhiteSpace(request.Form.DataJson))
                 {
                     // check for config errors
-                    var replicationFormData = JsonConvert.DeserializeObject<ConfigureReplicationFormData>(request.Form.DataJson);
-                
+                    var replicationFormData =
+                        JsonConvert.DeserializeObject<ConfigureReplicationFormData>(request.Form.DataJson);
+
                     errors = replicationFormData.ValidateReplicationFormData();
                 }
-                
+
                 return Task.FromResult(new ConfigureReplicationResponse
                 {
                     Form = new ConfigurationFormResponse
@@ -360,13 +362,14 @@ namespace PluginPostgreSQL.Plugin
         /// <param name="request"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        public override async Task<PrepareWriteResponse> PrepareWrite(PrepareWriteRequest request, ServerCallContext context)
+        public override async Task<PrepareWriteResponse> PrepareWrite(PrepareWriteRequest request,
+            ServerCallContext context)
         {
             Logger.SetLogLevel(Logger.LogLevel.Debug);
             Logger.SetLogPrefix(request.DataVersions.JobId);
             Logger.Info("Preparing write...");
             _server.WriteConfigured = false;
-            
+
             _server.WriteSettings = new WriteSettings
             {
                 CommitSLA = request.CommitSlaSeconds,
@@ -374,7 +377,7 @@ namespace PluginPostgreSQL.Plugin
                 Replication = request.Replication,
                 DataVersions = request.DataVersions,
             };
-            
+
             if (_server.WriteSettings.IsReplication())
             {
                 // reconcile job
@@ -388,12 +391,12 @@ namespace PluginPostgreSQL.Plugin
                     Logger.Error(e.Message);
                     throw;
                 }
-                
+
                 Logger.Info($"Finished reconciling Replication Job {request.DataVersions.JobId}");
             }
-            
+
             _server.WriteConfigured = true;
-            
+
             Logger.Debug(JsonConvert.SerializeObject(_server.WriteSettings, Formatting.Indented));
             Logger.Info("Write prepared.");
             return new PrepareWriteResponse();
@@ -411,30 +414,33 @@ namespace PluginPostgreSQL.Plugin
         {
             try
             {
-                Logger.Info("Writing records to MySQL...");
-            
+                Logger.Info("Writing records to PostgreSQL...");
+
                 var schema = _server.WriteSettings.Schema;
                 var inCount = 0;
-                var config =
-                    JsonConvert.DeserializeObject<ConfigureReplicationFormData>(_server.WriteSettings.Replication
-                        .SettingsJson);
-            
+
                 // get next record to publish while connected and configured
                 while (await requestStream.MoveNext(context.CancellationToken) && _server.Connected &&
                        _server.WriteConfigured)
                 {
                     var record = requestStream.Current;
                     inCount++;
-            
+
                     Logger.Debug($"Got record: {record.DataJson}");
-            
+
                     if (_server.WriteSettings.IsReplication())
                     {
-                        
+                        var config =
+                            JsonConvert.DeserializeObject<ConfigureReplicationFormData>(_server.WriteSettings
+                                .Replication
+                                .SettingsJson);
+
                         // send record to source system
                         // add await for unit testing 
                         // removed to allow multiple to run at the same time
-                        Task.Run(async () => await Replication.WriteRecordAsync(_connectionFactory, schema, record, config, responseStream), context.CancellationToken);
+                        Task.Run(
+                            async () => await Replication.WriteRecordAsync(_connectionFactory, schema, record, config,
+                                responseStream), context.CancellationToken);
                     }
                     else
                     {
@@ -442,10 +448,11 @@ namespace PluginPostgreSQL.Plugin
                         // add await for unit testing 
                         // removed to allow multiple to run at the same time
                         Task.Run(async () =>
-                            await Write.WriteRecordAsync(_connectionFactory, schema, record, , responseStream), context.CancellationToken);
+                                await Write.WriteRecordAsync(_connectionFactory, schema, record, responseStream),
+                            context.CancellationToken);
                     }
                 }
-            
+
                 Logger.Info($"Wrote {inCount} records to MySQL.");
             }
             catch (Exception e)

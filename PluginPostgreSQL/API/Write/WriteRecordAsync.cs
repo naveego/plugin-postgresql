@@ -39,7 +39,7 @@ namespace PluginPostgreSQL.API.Write
 
                 foreach (var property in schema.Properties)
                 {
-                    querySb.Append($"'{Utility.Utility.GetSafeName(property.Id)}=>{recordMap[property.Id]}',");
+                    querySb.Append($"{Utility.Utility.GetSafeName(property.Id)}=>'{recordMap[property.Id]}',");
                 }
 
                 querySb.Length--;
