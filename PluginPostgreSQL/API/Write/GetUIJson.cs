@@ -11,11 +11,7 @@ namespace PluginPostgreSQL.API.Write
             {
                 {"ui:order", new []
                 {
-                    "Query", "Parameters"
-                }},
-                {"Query", new Dictionary<string, object>
-                {
-                    {"ui:widget", "textarea"}
+                    "StoredProcedure"
                 }}
             };
             return JsonConvert.SerializeObject(uiJsonObj);
