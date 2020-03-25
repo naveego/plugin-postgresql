@@ -20,8 +20,8 @@ namespace PluginPostgreSQLTest.Plugin
             {
                 Hostname = "150.136.152.223",
                 Port = "5432",
-                // Database = "postgres",
-                Database = "accounting",
+                Database = "postgres",
+                // Database = "accounting",
                 Username = "postgres",
                 Password = "oSk1l#AMOuei"
             };

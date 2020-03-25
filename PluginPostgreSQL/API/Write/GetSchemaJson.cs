@@ -19,7 +19,7 @@ namespace PluginPostgreSQL.API.Write
                         {"type", "string"},
                         {"title", "Stored Procedure"},
                         {"description", "Stored Procedure to call"},
-                        {"enum", string.Join(",", storedProcedures.Select(s => s.GetId()))}
+                        {"enum", storedProcedures.Select(s => s.GetId())}
                     }},
                 }},
                 {"required", new []
