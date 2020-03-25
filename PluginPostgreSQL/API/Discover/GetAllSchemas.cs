@@ -35,7 +35,7 @@ FROM INFORMATION_SCHEMA.TABLES AS t
                       ON tc.CONSTRAINT_NAME = ccu.CONSTRAINT_NAME AND tc.CONSTRAINT_SCHEMA = ccu.CONSTRAINT_SCHEMA
 WHERE t.TABLE_SCHEMA NOT IN ('information_schema', 'pg_catalog')
 AND (tc.CONSTRAINT_TYPE IS NULL OR tc.CONSTRAINT_TYPE = 'PRIMARY KEY')
-ORDER BY TABLE_NAME";
+ORDER BY t.TABLE_NAME, t.TABLE_SCHEMA";
 
         public static async IAsyncEnumerable<Schema> GetAllSchemas(IConnectionFactory connFactory, int sampleSize = 5)
         {
