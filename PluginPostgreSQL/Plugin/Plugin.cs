@@ -32,13 +32,16 @@ namespace PluginPostgreSQL.Plugin
         }
 
         /// <summary>
-        /// Establishes a connection with MySQL.
+        /// Establishes a connection with PostgreSQL.
         /// </summary>
         /// <param name="request"></param>
         /// <param name="context"></param>
         /// <returns>A message indicating connection success</returns>
         public override async Task<ConnectResponse> Connect(ConnectRequest request, ServerCallContext context)
         {
+            // for setting the log level
+            // Logger.SetLogLevel(Logger.LogLevel.Debug);
+            
             Logger.SetLogPrefix("connect");
             // validate settings passed in
             try
@@ -85,6 +88,8 @@ namespace PluginPostgreSQL.Plugin
                         SettingsError = ""
                     };
                 }
+                
+                await conn.CloseAsync();
             }
             catch (Exception e)
             {
@@ -301,7 +306,7 @@ namespace PluginPostgreSQL.Plugin
         }
 
         /// <summary>
-        /// Configures replication writebacks to MySQL
+        /// Configures replication writebacks to PostgreSQL
         /// </summary>
         /// <param name="request"></param>
         /// <param name="context"></param>
@@ -324,7 +329,21 @@ namespace PluginPostgreSQL.Plugin
                     var replicationFormData =
                         JsonConvert.DeserializeObject<ConfigureReplicationFormData>(request.Form.DataJson);
 
+                    replicationFormData.SchemaName = replicationFormData.SchemaName.ToLower();
+
                     errors = replicationFormData.ValidateReplicationFormData();
+                    
+                    return Task.FromResult(new ConfigureReplicationResponse
+                    {
+                        Form = new ConfigurationFormResponse
+                        {
+                            DataJson = JsonConvert.SerializeObject(replicationFormData),
+                            Errors = {errors},
+                            SchemaJson = schemaJson,
+                            UiJson = uiJson,
+                            StateJson = request.Form.StateJson
+                        }
+                    });
                 }
 
                 return Task.FromResult(new ConfigureReplicationResponse
@@ -332,7 +351,7 @@ namespace PluginPostgreSQL.Plugin
                     Form = new ConfigurationFormResponse
                     {
                         DataJson = request.Form.DataJson,
-                        Errors = {errors},
+                        Errors = {},
                         SchemaJson = schemaJson,
                         UiJson = uiJson,
                         StateJson = request.Form.StateJson
@@ -357,7 +376,7 @@ namespace PluginPostgreSQL.Plugin
         }
 
         /// <summary>
-        /// Prepares writeback settings to write to MySQL
+        /// Prepares writeback settings to write to PostgreSQL
         /// </summary>
         /// <param name="request"></param>
         /// <param name="context"></param>
@@ -365,7 +384,6 @@ namespace PluginPostgreSQL.Plugin
         public override async Task<PrepareWriteResponse> PrepareWrite(PrepareWriteRequest request,
             ServerCallContext context)
         {
-            Logger.SetLogLevel(Logger.LogLevel.Debug);
             Logger.SetLogPrefix(request.DataVersions.JobId);
             Logger.Info("Preparing write...");
             _server.WriteConfigured = false;
@@ -403,7 +421,7 @@ namespace PluginPostgreSQL.Plugin
         }
 
         /// <summary>
-        /// Writes records to MySQL
+        /// Writes records to PostgreSQL
         /// </summary>
         /// <param name="requestStream"></param>
         /// <param name="responseStream"></param>
@@ -453,7 +471,7 @@ namespace PluginPostgreSQL.Plugin
                     }
                 }
 
-                Logger.Info($"Wrote {inCount} records to MySQL.");
+                Logger.Info($"Wrote {inCount} records to PostgreSQL.");
             }
             catch (Exception e)
             {

@@ -37,11 +37,19 @@ namespace PluginPostgreSQL.API.Replication
                     if (recordMap.ContainsKey(column.ColumnName))
                     {
                         var rawValue = recordMap[column.ColumnName];
-                        if (column.Serialize)
+                        if (rawValue == null || string.IsNullOrWhiteSpace(rawValue.ToString()))
                         {
-                            rawValue = JsonConvert.SerializeObject(rawValue);
+                            querySb.Append($"NULL,");
                         }
-                        querySb.Append($"'{rawValue}',");
+                        else
+                        {
+                            if (column.Serialize)
+                            {
+                                rawValue = JsonConvert.SerializeObject(rawValue);
+                            }
+
+                            querySb.Append($"'{Utility.Utility.GetSafeString(rawValue.ToString())}',");
+                        }
                     }
                     else
                     {
@@ -57,7 +65,7 @@ namespace PluginPostgreSQL.API.Replication
                 Logger.Debug($"Insert record query: {query}");
 
                 var cmd = connFactory.GetCommand(query, conn);
-                
+
                 await cmd.ExecuteNonQueryAsync();
             }
             catch (Exception e)
@@ -75,39 +83,50 @@ namespace PluginPostgreSQL.API.Replication
                             if (recordMap.ContainsKey(column.ColumnName))
                             {
                                 var rawValue = recordMap[column.ColumnName];
-                                if (column.Serialize)
+                                if (rawValue == null || string.IsNullOrWhiteSpace(rawValue.ToString()))
                                 {
-                                    rawValue = JsonConvert.SerializeObject(rawValue);
+                                    querySb.Append($"{Utility.Utility.GetSafeName(column.ColumnName)}=NULL,");
                                 }
-                                querySb.Append($"{Utility.Utility.GetSafeName(column.ColumnName)}='{rawValue}',");
+                                else
+                                {
+                                    if (column.Serialize)
+                                    {
+                                        rawValue = JsonConvert.SerializeObject(rawValue);
+                                    }
+
+                                    querySb.Append(
+                                        $"{Utility.Utility.GetSafeName(column.ColumnName)}='{Utility.Utility.GetSafeString(rawValue.ToString())}',");
+                                }
                             }
                             else
                             {
                                 querySb.Append($"{Utility.Utility.GetSafeName(column.ColumnName)}=NULL,");
                             }
-                            
                         }
                     }
 
                     querySb.Length--;
-                    
+
                     var primaryKey = table.Columns.Find(c => c.PrimaryKey);
                     var primaryValue = recordMap[primaryKey.ColumnName];
                     if (primaryKey.Serialize)
                     {
                         primaryValue = JsonConvert.SerializeObject(primaryValue);
                     }
-                    
-                    querySb.Append($" WHERE {primaryKey.ColumnName} = '{primaryValue}'");
+
+                    querySb.Append($" WHERE {Utility.Utility.GetSafeName(primaryKey.ColumnName)}='{Utility.Utility.GetSafeString(primaryValue.ToString())}'");
 
                     var query = querySb.ToString();
                     
+                    Logger.Debug($"Update record query: {query}");
+
                     var cmd = connFactory.GetCommand(query, conn);
-                    
+
                     await cmd.ExecuteNonQueryAsync();
                 }
                 catch (Exception exception)
                 {
+                    await conn.CloseAsync();
                     Logger.Error($"Error Insert: {e.Message}");
                     Logger.Error($"Error Update: {exception.Message}");
                     throw;

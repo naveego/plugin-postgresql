@@ -23,6 +23,8 @@ namespace PluginPostgreSQL.API.Write
             // debug
             Logger.Debug($"Starting timer for {record.RecordId}");
             var timer = Stopwatch.StartNew();
+            
+            var conn = connFactory.GetConnection();
 
             try
             {
@@ -35,20 +37,34 @@ namespace PluginPostgreSQL.API.Write
                 await WriteSemaphoreSlim.WaitAsync();
 
                 // call stored procedure
-                var querySb = new StringBuilder($"CALL {schema.Id}(");
+                var querySb = new StringBuilder($"CALL {schema.Query}(");
 
                 foreach (var property in schema.Properties)
                 {
-                    querySb.Append($"{Utility.Utility.GetSafeName(property.Id)}=>'{recordMap[property.Id]}',");
+                    if (!recordMap.ContainsKey(property.Id))
+                    {
+                        throw new Exception($"{property.Id} is required by the stored procedure and is not mapped on the job.");
+                    }
+
+                    var rawValue = recordMap[property.Id];
+                    
+                    if (rawValue == null || string.IsNullOrWhiteSpace(rawValue.ToString()))
+                    {
+                        querySb.Append($"{Utility.Utility.GetSafeName(property.Id)}=>NULL,");
+                    }
+                    else
+                    {
+                        querySb.Append($"{Utility.Utility.GetSafeName(property.Id)}=>'{Utility.Utility.GetSafeString(rawValue.ToString())}',");
+                    }
                 }
 
                 querySb.Length--;
                 querySb.Append(")");
 
                 var query = querySb.ToString();
-
-                var conn = connFactory.GetConnection();
-
+                
+                Logger.Debug($"WB querySb: {query}");
+                
                 await conn.OpenAsync();
 
                 var cmd = connFactory.GetCommand(query, conn);
@@ -71,6 +87,8 @@ namespace PluginPostgreSQL.API.Write
             }
             catch (Exception e)
             {
+                await conn.CloseAsync();
+                
                 Logger.Error($"Error writing record {e.Message}");
                 // send ack
                 var ack = new RecordAck

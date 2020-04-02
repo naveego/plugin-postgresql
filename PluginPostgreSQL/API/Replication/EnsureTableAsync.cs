@@ -26,7 +26,7 @@ AND table_name = '{1}'";
 
             cmd = connFactory.GetCommand(string.Format(EnsureTableQuery, table.SchemaName, table.TableName), conn);
             
-            Logger.Info($"Creating Table: {string.Format(EnsureTableQuery, table.SchemaName, table.TableName)}");
+            Logger.Debug($"Creating Table: {string.Format(EnsureTableQuery, table.SchemaName, table.TableName)}");
 
             // check if table exists
             var reader = await cmd.ExecuteReaderAsync();
@@ -65,7 +65,7 @@ AND table_name = '{1}'";
                 }
 
                 var query = querySb.ToString();
-                Logger.Info($"Creating Table: {query}");
+                Logger.Debug($"Creating Table: {query}");
                 
                 await conn.OpenAsync();
 

@@ -25,7 +25,8 @@ ORDER BY ORDINAL_POSITION ASC";
                 Id = storedProcedure.GetId(),
                 Name = storedProcedure.GetId(),
                 Description = "",
-                DataFlowDirection = Schema.Types.DataFlowDirection.Write
+                DataFlowDirection = Schema.Types.DataFlowDirection.Write,
+                Query = storedProcedure.GetId()
             };
 
             var conn = connFactory.GetConnection();
