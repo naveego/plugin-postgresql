@@ -46,7 +46,7 @@ namespace PluginPostgreSQL.API.Replication
                 case PropertyType.Decimal:
                     return "decimal";
                 case PropertyType.Float:
-                    return "double";
+                    return "double precision";
                 case PropertyType.Bool:
                     return "boolean";
                 case PropertyType.Blob:
