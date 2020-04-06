@@ -36,7 +36,7 @@ namespace PluginPostgreSQL.API.Replication
             switch (dataType)
             {
                 case PropertyType.Datetime:
-                    return "datetime";
+                    return "timestamp";
                 case PropertyType.Date:
                     return "date";
                 case PropertyType.Time:
