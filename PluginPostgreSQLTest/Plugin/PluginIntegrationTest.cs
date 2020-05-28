@@ -420,6 +420,50 @@ namespace PluginPostgreSQLTest.Plugin
         }
         
         [Fact]
+        public async Task DiscoverSchemasRefreshQueryBadSyntaxTest()
+        {
+            // setup
+            Server server = new Server
+            {
+                Services = {Publisher.BindService(new PluginPostgreSQL.Plugin.Plugin())},
+                Ports = {new ServerPort("localhost", 0, ServerCredentials.Insecure)}
+            };
+            server.Start();
+
+            var port = server.Ports.First().BoundPort;
+
+            var channel = new Channel($"localhost:{port}", ChannelCredentials.Insecure);
+            var client = new Publisher.PublisherClient(channel);
+
+            var connectRequest = GetConnectSettings();
+
+            var request = new DiscoverSchemasRequest
+            {
+                Mode = DiscoverSchemasRequest.Types.Mode.Refresh,
+                SampleSize = 10,
+                ToRefresh = {GetTestSchema("bad syntax")}
+            };
+
+            // act
+            client.Connect(connectRequest);
+
+            try
+            {
+                var response = client.DiscoverSchemas(request);
+            }
+            catch (Exception e)
+            {
+                // assert
+                Assert.IsType<RpcException>(e);
+                Assert.Contains("does not exist", e.Message);
+            }
+
+            // cleanup
+            await channel.ShutdownAsync();
+            await server.ShutdownAsync();
+        }
+
+        [Fact]
         public async Task ReadStreamLimitTest()
         {
             // setup
