@@ -335,23 +335,14 @@ namespace PluginPostgreSQL.Plugin
 
             try
             {
-                var errors = new List<string>();
-                if (!string.IsNullOrWhiteSpace(request.Form.DataJson))
+                if (string.IsNullOrWhiteSpace(request.Form.DataJson) || request.Form.DataJson == "{}")
                 {
-                    // check for config errors
-                    var replicationFormData =
-                        JsonConvert.DeserializeObject<ConfigureReplicationFormData>(request.Form.DataJson);
-
-                    replicationFormData.SchemaName = replicationFormData.SchemaName.ToLower();
-
-                    errors = replicationFormData.ValidateReplicationFormData();
-                    
                     return Task.FromResult(new ConfigureReplicationResponse
                     {
                         Form = new ConfigurationFormResponse
                         {
-                            DataJson = JsonConvert.SerializeObject(replicationFormData),
-                            Errors = {errors},
+                            DataJson = request.Form.DataJson,
+                            Errors = {},
                             SchemaJson = schemaJson,
                             UiJson = uiJson,
                             StateJson = request.Form.StateJson
@@ -359,12 +350,20 @@ namespace PluginPostgreSQL.Plugin
                     });
                 }
 
+                // check for config errors
+                var replicationFormData =
+                    JsonConvert.DeserializeObject<ConfigureReplicationFormData>(request.Form.DataJson);
+
+                replicationFormData.SchemaName = replicationFormData.SchemaName.ToLower();
+
+                var errors = replicationFormData.ValidateReplicationFormData();
+                    
                 return Task.FromResult(new ConfigureReplicationResponse
                 {
                     Form = new ConfigurationFormResponse
                     {
-                        DataJson = request.Form.DataJson,
-                        Errors = {},
+                        DataJson = JsonConvert.SerializeObject(replicationFormData),
+                        Errors = {errors},
                         SchemaJson = schemaJson,
                         UiJson = uiJson,
                         StateJson = request.Form.StateJson
