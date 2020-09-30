@@ -12,15 +12,16 @@ namespace PluginPostgreSQL
         {
             try
             {
+                // setup logger
+                Logger.Init();
+
                 // Add final chance exception handler
                 AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
                 {
                     Logger.Error(null, $"died: {eventArgs.ExceptionObject}");
+                    Logger.CloseAndFlush();
                 };
-
-                // clean old logs on start up
-                Logger.Clean();
-
+                
                 // create new server and start it
                 Server server = new Server
                 {
@@ -41,6 +42,7 @@ namespace PluginPostgreSQL
                 Console.ReadLine();
 
                 Logger.Info("Plugin exiting...");
+                Logger.CloseAndFlush();
 
                 // shutdown server
                 server.ShutdownAsync().Wait();
@@ -48,6 +50,8 @@ namespace PluginPostgreSQL
             catch (Exception e)
             {
                 Logger.Error(e, e.Message);
+                Logger.CloseAndFlush();
+                throw;
             }
         }
     }
