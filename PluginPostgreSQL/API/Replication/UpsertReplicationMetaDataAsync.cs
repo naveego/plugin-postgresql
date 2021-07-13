@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Naveego.Sdk.Logging;
 using Newtonsoft.Json;
 using PluginPostgreSQL.API.Factory;
 using PluginPostgreSQL.API.Utility;

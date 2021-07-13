@@ -1,5 +1,6 @@
 using System.Text;
 using System.Threading.Tasks;
+using Naveego.Sdk.Logging;
 using PluginPostgreSQL.API.Factory;
 using PluginPostgreSQL.DataContracts;
 using PluginPostgreSQL.Helper;
