@@ -45,16 +45,25 @@ namespace PluginPostgreSQL.API.Read
                     {
                         try
                         {
-                            switch (property.Type)
+                            var rawValue = reader.GetValueById(property.Id);
+
+                            if (rawValue is DBNull)
                             {
-                                case PropertyType.String:
-                                case PropertyType.Text:
-                                case PropertyType.Decimal:
-                                    recordMap[property.Id] = reader.GetValueById(property.Id).ToString();
-                                    break;
-                                default:
-                                    recordMap[property.Id] = reader.GetValueById(property.Id);
-                                    break;
+                                recordMap[property.Id] = null;
+                            }
+                            else
+                            {
+                                switch (property.Type)
+                                {
+                                    case PropertyType.String:
+                                    case PropertyType.Text:
+                                    case PropertyType.Decimal:
+                                        recordMap[property.Id] = rawValue.ToString();
+                                        break;
+                                    default:
+                                        recordMap[property.Id] = rawValue;
+                                        break;
+                                }
                             }
                         }
                         catch (Exception e)
