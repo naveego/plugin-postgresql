@@ -9,6 +9,7 @@ namespace PluginPostgreSQL.Helper
         public string Username { get; set; }
         public string Password { get; set; }
         public string Database { get; set; }
+        public string AppendConnectionString { get; set; }
 
         /// <summary>
         /// Validates the settings input object
@@ -43,7 +44,7 @@ namespace PluginPostgreSQL.Helper
         /// <returns></returns>
         public string GetConnectionString()
         {
-            return $"Host={Hostname}; Port={Port}; Database={Database}; Username={Username}; Password={Password};";
+            return $"Host={Hostname}; Port={Port}; Database={Database}; Username={Username}; Password={Password}; {AppendConnectionString}";
         }
         
         /// <summary>
@@ -52,7 +53,7 @@ namespace PluginPostgreSQL.Helper
         /// <returns></returns>
         public string GetConnectionString(string database)
         {
-            return $"Host={Hostname}; Port={Port}; Database={database}; Username={Username}; Password={Password};";
+            return $"Host={Hostname}; Port={Port}; Database={database}; Username={Username}; Password={Password}; {AppendConnectionString}";
         }
     }
 }
