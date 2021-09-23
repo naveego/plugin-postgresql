@@ -202,7 +202,7 @@ namespace PluginPostgreSQL.Plugin
                 }
                 catch (Exception e)
                 {
-                    Logger.Error(e, e.Message);
+                    Logger.Error(e, e.Message, context);
                     return new DiscoverSchemasResponse();
                 }
             }
@@ -223,7 +223,7 @@ namespace PluginPostgreSQL.Plugin
             }
             catch (Exception e)
             {
-                Logger.Error(e, e.Message);
+                Logger.Error(e, e.Message, context);
                 return new DiscoverSchemasResponse();
             }
         }
@@ -267,7 +267,7 @@ namespace PluginPostgreSQL.Plugin
             }
             catch (Exception e)
             {
-                Logger.Error(e, e.Message);
+                Logger.Error(e, e.Message, context);
             }
         }
 
@@ -329,7 +329,7 @@ namespace PluginPostgreSQL.Plugin
             }
             catch (Exception e)
             {
-                Logger.Error(e, e.Message);
+                Logger.Error(e, e.Message, context);
                 return new ConfigureWriteResponse
                 {
                     Form = new ConfigurationFormResponse
@@ -399,7 +399,7 @@ namespace PluginPostgreSQL.Plugin
             }
             catch (Exception e)
             {
-                Logger.Error(e, e.Message);
+                Logger.Error(e, e.Message, context);
                 return Task.FromResult(new ConfigureReplicationResponse
                 {
                     Form = new ConfigurationFormResponse
@@ -514,7 +514,7 @@ namespace PluginPostgreSQL.Plugin
             }
             catch (Exception e)
             {
-                Logger.Error(e, e.Message);
+                Logger.Error(e, e.Message, context);
             }
         }
 
