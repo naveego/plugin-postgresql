@@ -18,11 +18,11 @@ namespace PluginPostgreSQLTest.Plugin
         {
             return new Settings
             {
-                Hostname = "", // add to test
-                Port = "",
-                Database = "",
-                Username = "",
-                Password = "",
+                Hostname = "localhost",
+                Port = "5432",
+                Database = "postgres",
+                Username = "postgres",
+                Password = "n5o_ADMIN",
                 AppendConnectionString = ""
             };
         }
@@ -134,7 +134,52 @@ namespace PluginPostgreSQLTest.Plugin
             await channel.ShutdownAsync();
             await server.ShutdownAsync();
         }
+        
+        [Fact]
+        public async Task ConnectFailedTest()
+        {
+            // setup
+            Server server = new Server
+            {
+                Services = {Publisher.BindService(new PluginPostgreSQL.Plugin.Plugin())},
+                Ports = {new ServerPort("localhost", 0, ServerCredentials.Insecure)}
+            };
+            server.Start();
 
+            var port = server.Ports.First().BoundPort;
+
+            var channel = new Channel($"localhost:{port}", ChannelCredentials.Insecure);
+            var client = new Publisher.PublisherClient(channel);
+
+            var request = new ConnectRequest
+            {
+                SettingsJson = JsonConvert.SerializeObject(new Settings
+                {
+                    Hostname = "localhost",
+                    Port = "5432",
+                    Database = "postgres",
+                    Username = "postgr",
+                    Password = "n5o_ADMIN",
+                    AppendConnectionString = ""
+                }),
+                OauthConfiguration = new OAuthConfiguration(),
+                OauthStateJson = ""
+            };
+
+            // act
+            var response = client.Connect(request);
+
+            // assert
+            Assert.IsType<ConnectResponse>(response);
+            Assert.Equal("", response.SettingsError);
+            Assert.Equal("\"28P01: password authentication failed for user \"postgr\"", response.ConnectionError);
+            Assert.Equal("", response.OauthError);
+
+            // cleanup
+            await channel.ShutdownAsync();
+            await server.ShutdownAsync();
+        }
+        
         [Fact]
         public async Task DiscoverSchemasAllTest()
         {

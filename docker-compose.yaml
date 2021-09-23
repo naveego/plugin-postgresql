@@ -1,0 +1,12 @@
+version: "2.0"
+services:
+  postgres:
+    image: postgres:13.4
+    ports:
+      - 5432:5432
+    environment:
+      ACCEPT_EULA: Y
+      POSTGRES_PASSWORD: n5o_ADMIN
+    logging:
+      driver: json-file
+    network_mode: bridge
