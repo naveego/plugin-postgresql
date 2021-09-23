@@ -172,7 +172,7 @@ namespace PluginPostgreSQLTest.Plugin
             // assert
             Assert.IsType<ConnectResponse>(response);
             Assert.Equal("", response.SettingsError);
-            Assert.Equal("\"28P01: password authentication failed for user \"postgr\"", response.ConnectionError);
+            Assert.Equal("28P01: password authentication failed for user \"postgr\"", response.ConnectionError);
             Assert.Equal("", response.OauthError);
 
             // cleanup

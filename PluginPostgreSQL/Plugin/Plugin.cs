@@ -78,7 +78,7 @@ namespace PluginPostgreSQL.Plugin
             }
             catch (Exception e)
             {
-                Logger.Error(e, e.Message, context);
+                Logger.Error(e, e.Message);
                 return new ConnectResponse
                 {
                     OauthStateJson = request.OauthStateJson,
@@ -95,7 +95,7 @@ namespace PluginPostgreSQL.Plugin
             }
             catch (Exception e)
             {
-                Logger.Error(e, e.Message, context);
+                Logger.Error(e, e.Message);
                 return new ConnectResponse
                 {
                     OauthStateJson = request.OauthStateJson,
@@ -126,7 +126,7 @@ namespace PluginPostgreSQL.Plugin
             }
             catch (Exception e)
             {
-                Logger.Error(e, e.Message, context);
+                Logger.Error(e, e.Message);
 
                 return new ConnectResponse
                 {
@@ -202,7 +202,7 @@ namespace PluginPostgreSQL.Plugin
                 }
                 catch (Exception e)
                 {
-                    Logger.Error(e, e.Message, context);
+                    Logger.Error(e, e.Message);
                     return new DiscoverSchemasResponse();
                 }
             }
@@ -223,7 +223,7 @@ namespace PluginPostgreSQL.Plugin
             }
             catch (Exception e)
             {
-                Logger.Error(e, e.Message, context);
+                Logger.Error(e, e.Message);
                 return new DiscoverSchemasResponse();
             }
         }
@@ -267,7 +267,7 @@ namespace PluginPostgreSQL.Plugin
             }
             catch (Exception e)
             {
-                Logger.Error(e, e.Message, context);
+                Logger.Error(e, e.Message);
             }
         }
 
@@ -329,7 +329,7 @@ namespace PluginPostgreSQL.Plugin
             }
             catch (Exception e)
             {
-                Logger.Error(e, e.Message, context);
+                Logger.Error(e, e.Message);
                 return new ConfigureWriteResponse
                 {
                     Form = new ConfigurationFormResponse
@@ -399,7 +399,7 @@ namespace PluginPostgreSQL.Plugin
             }
             catch (Exception e)
             {
-                Logger.Error(e, e.Message, context);
+                Logger.Error(e, e.Message);
                 return Task.FromResult(new ConfigureReplicationResponse
                 {
                     Form = new ConfigurationFormResponse
@@ -514,7 +514,7 @@ namespace PluginPostgreSQL.Plugin
             }
             catch (Exception e)
             {
-                Logger.Error(e, e.Message, context);
+                Logger.Error(e, e.Message);
             }
         }
 
